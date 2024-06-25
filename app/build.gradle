@@ -2,23 +2,21 @@ apply plugin: 'com.android.application'
 
 android {
     namespace "com.termux.boot"
-    compileSdkVersion project.properties.compileSdkVersion.toInteger()
-    def appVersionName = System.getenv("TERMUX_BOOT_APP_VERSION_NAME") ?: ""
-    def apkVersionTag = System.getenv("TERMUX_BOOT_APK_VERSION_TAG") ?: ""
+
+    compileSdk project.properties.compileSdkVersion.toInteger()
+
+    def appVersionName = System.getenv("TERMUX_BOOT_APP_BUILD__APP_VERSION_NAME") ?: ""
+    def apkVersionTag = System.getenv("TERMUX_BOOT_APP_BUILD__APK_VERSION_TAG") ?: ""
 
     defaultConfig {
         applicationId "com.termux.boot"
-        minSdkVersion project.properties.minSdkVersion.toInteger()
-        targetSdkVersion project.properties.targetSdkVersion.toInteger()
-        versionCode 7
-        versionName "0.7.0"
+        minSdk project.properties.minSdkVersion.toInteger()
+        targetSdk project.properties.targetSdkVersion.toInteger()
+        versionCode 1000
+        versionName "0.8.1"
 
         if (appVersionName) versionName = appVersionName
         validateVersionName(versionName)
-
-        manifestPlaceholders.TERMUX_PACKAGE_NAME = "com.termux"
-        manifestPlaceholders.TERMUX_APP_NAME = "Termux"
-        manifestPlaceholders.TERMUX_BOOT_APP_NAME = "Termux:Boot"
     }
 
     signingConfigs {
@@ -39,28 +37,31 @@ android {
 
         debug {
             signingConfig signingConfigs.debug
-            zipAlignEnabled true
         }
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     applicationVariants.all { variant ->
         variant.outputs.all { output ->
-            if (variant.buildType.name == "debug") {
-                outputFileName = new File("termux-boot_" + (apkVersionTag ? apkVersionTag : "debug") + ".apk")
-            } else if (variant.buildType.name == "release") {
-                outputFileName = new File("termux-boot_" + (apkVersionTag ? apkVersionTag : "release") + ".apk")
-            }
+            outputFileName = new File("termux-boot-app_" +
+                    (apkVersionTag ? apkVersionTag : "v" + versionName + "+" + variant.buildType.name) + ".apk")
+        }
+    }
+
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            outputFileName = new File("termux-boot-app_" +
+                    (apkVersionTag ? apkVersionTag : "v" + versionName + "+" + variant.buildType.name) + ".apk")
         }
     }
 }
 
 dependencies {
-    implementation 'androidx.annotation:annotation:1.7.0'
+    implementation "androidx.annotation:annotation:1.7.0"
 }
 
 task versionName {
